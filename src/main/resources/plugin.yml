@@ -1,0 +1,4 @@
+name: AuraUtilitiesPlus
+version: '${project.version}'
+main: tech.aurasoftware.aurautilitiesplus.AuraUtilitiesPlus
+api-version: '1.21'
