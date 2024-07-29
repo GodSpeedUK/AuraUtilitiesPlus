@@ -6,7 +6,7 @@
 
   <groupId>tech.aurasoftware</groupId>
   <artifactId>AuraUtilitiesPlus</artifactId>
-  <version>1.0</version>
+  <version>1.1.0</version>
   <packaging>jar</packaging>
 
   <name>AuraUtilitiesPlus</name>
@@ -66,6 +66,22 @@
           <artifactId>paper-api</artifactId>
           <version>1.21-R0.1-SNAPSHOT</version>
           <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.32</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>ch.obermuhlner</groupId>
+          <artifactId>big-math</artifactId>
+          <version>LATEST</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-dbcp</groupId>
+          <artifactId>commons-dbcp</artifactId>
+          <version>LATEST</version>
       </dependency>
   </dependencies>
 </project>
