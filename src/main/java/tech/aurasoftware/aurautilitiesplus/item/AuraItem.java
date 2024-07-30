@@ -116,7 +116,7 @@ public class AuraItem implements Serializable {
 
         ItemStack itemStack;
 
-        if (skullOwner != null && bukkitMaterial.equals(Material.PLAYER_HEAD)) {
+        if (skullOwner != null && bukkitMaterial.name().equalsIgnoreCase("PLAYER_HEAD")) {
             itemStack = new ItemStack(bukkitMaterial, amount);
             UUID playerUUID = Bukkit.getOfflinePlayer(Placeholder.apply(skullOwner, placeholders)).getUniqueId();
             String propertyValue = getPlayerTextureProperty(playerUUID);
