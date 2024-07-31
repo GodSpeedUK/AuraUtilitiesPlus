@@ -30,8 +30,6 @@ public class SQLUtility {
             }
         }
 
-        System.out.println(queryBuilder.toString());
-
         SQLResponse response = sqlDatabase.querySync(queryBuilder.toString(), values.toArray());
 
         if (response.isEmpty()) {
@@ -196,6 +194,10 @@ public class SQLUtility {
                 continue;
             }
 
+            if (i != fields.length - 1 && i != 0) {
+                queryBuilder.append(", ");
+            }
+
             if (field.getAnnotation(UniqueKey.class) != null) {
                 foundUniqueKey = true;
                 if (keyId != 0) {
@@ -207,21 +209,18 @@ public class SQLUtility {
 
             if (field.getType().isAssignableFrom(String.class)) {
                 queryBuilder.append(field.getName()).append(" VARCHAR(255) NOT NULL");
-            } else if (field.getType().equals(Integer.class)) {
+            } else if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
                 queryBuilder.append(field.getName()).append(" INT NOT NULL");
-            } else if (field.getType().equals(Long.class)) {
+            } else if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
                 queryBuilder.append(field.getName()).append(" BIGINT NOT NULL");
             } else if (field.getType().equals(UUID.class)) {
                 queryBuilder.append(field.getName()).append(" VARCHAR(36) NOT NULL");
-            } else if (field.getType().equals(Boolean.class)) {
+            } else if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
                 queryBuilder.append(field.getName()).append(" BOOLEAN NOT NULL");
-            } else if (field.getType().equals(Double.class)) {
+            } else if (field.getType().equals(Double.class) || field.getType().equals(double.class)) {
                 queryBuilder.append(field.getName()).append(" DOUBLE NOT NULL");
             }
 
-            if (i != fields.length - 1) {
-                queryBuilder.append(", ");
-            }
 
         }
 
@@ -231,6 +230,7 @@ public class SQLUtility {
         }
 
         queryBuilder.append(")");
+
         sqlDatabase.update(queryBuilder.toString());
     }
 
