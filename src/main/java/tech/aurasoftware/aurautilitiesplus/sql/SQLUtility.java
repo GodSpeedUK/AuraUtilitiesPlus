@@ -169,6 +169,23 @@ public class SQLUtility {
         sqlDatabase.updateSync(sqlQuery.getQuery(), sqlQuery.getValues());
     }
 
+    private String getDataType(Field field, boolean isSQLite) {
+        Class<?> type = field.getType();
+        if (type.isAssignableFrom(String.class) || type.equals(UUID.class)) {
+            return "VARCHAR(255)";
+        } else if (type.equals(Integer.class) || type.equals(int.class)) {
+            return isSQLite ? "INTEGER" : "INT";
+        } else if (type.equals(Long.class) || type.equals(long.class)) {
+            return "BIGINT";
+        } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+            return isSQLite ? "INTEGER" : "BOOLEAN";
+        } else if (type.equals(Double.class) || type.equals(double.class)) {
+            return "DOUBLE";
+        } else {
+            throw new IllegalArgumentException("Unsupported field type: " + type);
+        }
+    }
+
     public void batchSave(SQLDatabase sqlDatabase, SQLQuery... queries) {
         sqlDatabase.updateMultipleSync(queries);
     }
@@ -182,7 +199,11 @@ public class SQLUtility {
 
         Field[] fields = tClass.getDeclaredFields();
 
-        queryBuilder.append("id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,");
+        if(sqlDatabase.isSqLite()){
+            queryBuilder.append("id INTEGER PRIMARY KEY AUTOINCREMENT,");
+        }else {
+            queryBuilder.append("id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,");
+        }
 
         boolean foundUniqueKey = false;
         int keyId = 0;
@@ -207,21 +228,8 @@ public class SQLUtility {
                 keyId++;
             }
 
-            if (field.getType().isAssignableFrom(String.class)) {
-                queryBuilder.append(field.getName()).append(" VARCHAR(255) NOT NULL");
-            } else if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
-                queryBuilder.append(field.getName()).append(" INT NOT NULL");
-            } else if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
-                queryBuilder.append(field.getName()).append(" BIGINT NOT NULL");
-            } else if (field.getType().equals(UUID.class)) {
-                queryBuilder.append(field.getName()).append(" VARCHAR(36) NOT NULL");
-            } else if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
-                queryBuilder.append(field.getName()).append(" BOOLEAN NOT NULL");
-            } else if (field.getType().equals(Double.class) || field.getType().equals(double.class)) {
-                queryBuilder.append(field.getName()).append(" DOUBLE NOT NULL");
-            }
-
-
+            String dataType = getDataType(field, sqlDatabase.isSqLite());
+            queryBuilder.append(field.getName()).append(" ").append(dataType).append(" NOT NULL");
         }
 
         if (foundUniqueKey) {
@@ -230,6 +238,8 @@ public class SQLUtility {
         }
 
         queryBuilder.append(")");
+
+        System.out.println(queryBuilder.toString());
 
         sqlDatabase.update(queryBuilder.toString());
     }

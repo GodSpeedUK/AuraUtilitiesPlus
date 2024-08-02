@@ -2,11 +2,14 @@ package tech.aurasoftware.aurautilitiesplus.sql;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.commons.dbcp.BasicDataSource;
+import tech.aurasoftware.aurautilitiesplus.AuraUtilitiesPlus;
 import tech.aurasoftware.aurautilitiesplus.configuration.serialization.Serializable;
 import tech.aurasoftware.aurautilitiesplus.configuration.serialization.annotation.Ignored;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +23,7 @@ public class SQLDatabase implements Serializable {
     private boolean enabled = false;
     private String host = "localhost";
     private int port = 3306;
+    private boolean sqLite = false;
     private String database = "database";
     private String username = "username";
     private String password = "password";
@@ -57,15 +61,28 @@ public class SQLDatabase implements Serializable {
         return this;
     }
 
+    @SneakyThrows
     public void createDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + database;
+        String url;
+        if(sqLite) {
+            File folder = new File(AuraUtilitiesPlus.getInstance().getDataFolder(), "databases");
+            if(!folder.exists()){
+                folder.mkdirs();
+            }
+            File dbFile = new File(folder, database + ".db");
+            if(!dbFile.exists()){
+                dbFile.createNewFile();
+            }
+            url = "jdbc:sqlite:" + dbFile.getAbsolutePath();
+        }else {
+            url = "jdbc:mysql://" + host + ":" + port + "/" + database;
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
+            dataSource.setMinIdle(10);
+            dataSource.setTestOnBorrow(false);
+        }
         dataSource.setUrl(url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-
-        dataSource.setMinIdle(10);
-        dataSource.setTestOnBorrow(false);
 
         this.dataSource = dataSource;
     }
